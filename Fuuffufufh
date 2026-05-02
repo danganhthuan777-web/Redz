@@ -1,0 +1,272 @@
+local Configs_HUB = {
+  Cor_Hub = Color3.fromRGB(35, 35, 35), -- Màu xám chủ đạo
+  Cor_Options = Color3.fromRGB(45, 45, 45),
+  Cor_Stroke = Color3.fromRGB(255, 215, 0), -- Màu Vàng Kim
+  Cor_Text = Color3.fromRGB(240, 240, 240),
+  Cor_DarkText = Color3.fromRGB(160, 160, 160),
+  Corner_Radius = UDim.new(0, 5),
+  Text_Font = Enum.Font.FredokaOne
+}
+
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+-- Hàm tạo Instance nhanh
+local function Create(instance, parent, props)
+  local new = Instance.new(instance, parent)
+  if props then
+    for prop, value in pairs(props) do
+      new[prop] = value
+    end
+  end
+  return new
+end
+
+-- Hàm bo góc
+local function Corner(parent, props)
+  local new = Create("UICorner", parent)
+  new.CornerRadius = Configs_HUB.Corner_Radius
+  if props then
+    for prop, value in pairs(props) do new[prop] = value end
+  end
+  return new
+end
+
+-- Hàm tạo viền (Stroke) màu vàng
+local function Stroke(parent, props)
+  local new = Create("UIStroke", parent)
+  new.Color = Configs_HUB.Cor_Stroke
+  new.ApplyStrokeMode = "Border"
+  new.Thickness = 1.2
+  if props then
+    for prop, value in pairs(props) do new[prop] = value end
+  end
+  return new
+end
+
+local function CreateTween(instance, prop, value, time, tweenWait)
+  local tween = TweenService:Create(instance,
+  TweenInfo.new(time, Enum.EasingStyle.Linear),
+  {[prop] = value})
+  tween:Play()
+  if tweenWait then tween.Completed:Wait() end
+end
+
+-- Khởi tạo ScreenGui
+local ScreenGui = Create("ScreenGui", CoreGui, {
+  Name = "REDz_HUB_Gold_Edition",
+  ResetOnSpawn = false
+})
+
+-- Xóa bản cũ nếu trùng tên
+if CoreGui:FindFirstChild(ScreenGui.Name) and CoreGui:FindFirstChild(ScreenGui.Name) ~= ScreenGui then
+  CoreGui[ScreenGui.Name]:Destroy()
+end
+
+function DestroyScript()
+  ScreenGui:Destroy()
+end
+
+-- Hệ thống Thông báo (Notification)
+local Menu_Notifi = Create("Frame", ScreenGui, {
+  Size = UDim2.new(0, 300, 1, 0),
+  Position = UDim2.new(1, 0, 0, 0),
+  AnchorPoint = Vector2.new(1, 0),
+  BackgroundTransparency = 1
+})
+
+Create("UIListLayout", Menu_Notifi, {
+  Padding = UDim.new(0, 15),
+  VerticalAlignment = "Bottom"
+})
+
+function MakeNotifi(Configs)
+  local TitleText = Configs.Title or "REDz HUB"
+  local text = Configs.Text or "Notification"
+  local timewait = Configs.Time or 5
+  
+  local Frame1 = Create("Frame", Menu_Notifi, {
+    Size = UDim2.new(1, 0, 0, 0),
+    BackgroundTransparency = 1,
+    AutomaticSize = "Y"
+  })
+  
+  local Frame2 = Create("Frame", Frame1, {
+    Size = UDim2.new(0, 250, 0, 0),
+    BackgroundColor3 = Configs_HUB.Cor_Hub,
+    BackgroundTransparency = 0.2, -- Xám trong suốt
+    Position = UDim2.new(1, 300, 0, 0),
+    AutomaticSize = "Y"
+  })Corner(Frame2)Stroke(Frame2)
+  
+  Create("TextLabel", Frame2, {
+    Size = UDim2.new(1, -40, 0, 25),
+    Position = UDim2.new(0, 15, 0, 5),
+    Text = TitleText,
+    Font = Configs_HUB.Text_Font,
+    TextColor3 = Configs_HUB.Cor_Stroke, -- Tiêu đề màu vàng cho đẹp
+    TextSize = 18,
+    TextXAlignment = "Left",
+    BackgroundTransparency = 1
+  })
+
+  local Desc = Create("TextLabel", Frame2, {
+    Size = UDim2.new(1, -30, 0, 0),
+    Position = UDim2.new(0, 15, 0, 35),
+    Text = text,
+    Font = Configs_HUB.Text_Font,
+    TextColor3 = Configs_HUB.Cor_Text,
+    TextSize = 14,
+    TextWrapped = true,
+    AutomaticSize = "Y",
+    TextXAlignment = "Left",
+    BackgroundTransparency = 1
+  })
+
+  task.spawn(function()
+    CreateTween(Frame2, "Position", UDim2.new(1, -260, 0, 0), 0.5)
+    task.wait(timewait)
+    CreateTween(Frame2, "Position", UDim2.new(1, 300, 0, 0), 0.5)
+    task.wait(0.5)
+    Frame1:Destroy()
+  end)
+end
+
+-- Cửa sổ chính (Main Window)
+function MakeWindow(Configs)
+  local title = Configs.Hub.Title or "REDz HUB"
+  local Anim_Title = Configs.Hub.Animation or "by : redz9999"
+  
+  local Menu = Create("Frame", ScreenGui, {
+    Size = UDim2.new(0, 500, 0, 270),
+    Position = UDim2.new(0.5, -250, 0.5, -135),
+    BackgroundColor3 = Configs_HUB.Cor_Hub,
+    BackgroundTransparency = 0.15, -- Xám trong suốt
+    Active = true,
+    Draggable = true,
+    Visible = false -- Sẽ hiện sau animation
+  })Corner(Menu)Stroke(Menu)
+  
+  local TopBar = Create("Frame", Menu, {
+    Size = UDim2.new(1, 0, 0, 30),
+    BackgroundTransparency = 1
+  })
+  
+  local TitleLabel = Create("TextLabel", TopBar, {
+    Size = UDim2.new(1, -80, 1, 0),
+    Position = UDim2.new(0, 15, 0, 0),
+    Text = title,
+    Font = Configs_HUB.Text_Font,
+    TextColor3 = Configs_HUB.Cor_Text,
+    TextSize = 18,
+    TextXAlignment = "Left",
+    BackgroundTransparency = 1
+  })
+
+  -- Nút đóng và thu nhỏ
+  local Btns = Create("Frame", TopBar, {
+    Size = UDim2.new(0, 70, 1, 0),
+    Position = UDim2.new(1, -5, 0, 0),
+    AnchorPoint = Vector2.new(1, 0),
+    BackgroundTransparency = 1
+  })
+  
+  local CloseBtn = Create("TextButton", Btns, {
+    Size = UDim2.new(0.5, 0, 1, 0),
+    Position = UDim2.new(0.5, 0, 0, 0),
+    Text = "×",
+    Font = Configs_HUB.Text_Font,
+    TextSize = 25,
+    TextColor3 = Color3.fromRGB(255, 50, 50),
+    BackgroundTransparency = 1
+  })
+
+  CloseBtn.MouseButton1Click:Connect(function()
+    DestroyScript()
+  end)
+
+  -- Animation khởi tạo
+  local AnimMenu = Create("Frame", ScreenGui, {
+    Size = UDim2.new(0, 0, 0, 35),
+    Position = UDim2.new(0.5, 0, 0.5, 0),
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    BackgroundColor3 = Configs_HUB.Cor_Hub,
+    BackgroundTransparency = 0.1
+  })Corner(AnimMenu)Stroke(AnimMenu)
+
+  CreateTween(AnimMenu, "Size", UDim2.new(0, 200, 0, 35), 0.5, true)
+  task.wait(0.5)
+  AnimMenu:Destroy()
+  Menu.Visible = true
+
+  -- Cấu trúc Tab
+  local ScrollTab = Create("ScrollingFrame", Menu, {
+    Size = UDim2.new(0, 130, 1, -35),
+    Position = UDim2.new(0, 5, 0, 32),
+    BackgroundTransparency = 1,
+    ScrollBarThickness = 2,
+    CanvasSize = UDim2.new(0, 0, 0, 0),
+    AutomaticCanvasSize = "Y"
+  })Create("UIListLayout", ScrollTab, {Padding = UDim.new(0, 5)})
+  
+  local ContainerHold = Create("Frame", Menu, {
+    Size = UDim2.new(1, -145, 1, -35),
+    Position = UDim2.new(0, 140, 0, 32),
+    BackgroundTransparency = 1
+  })
+
+  -- Đường kẻ ngăn cách (Màu Vàng)
+  Create("Frame", Menu, {
+    Size = UDim2.new(1, 0, 0, 1),
+    Position = UDim2.new(0, 0, 0, 30),
+    BackgroundColor3 = Configs_HUB.Cor_Stroke,
+    BorderSizePixel = 0
+  })
+
+  function MakeTab(TabConfigs)
+    local TabName = TabConfigs.Name or "Tab"
+    
+    local TabBtn = Create("TextButton", ScrollTab, {
+      Size = UDim2.new(1, -10, 0, 30),
+      BackgroundColor3 = Configs_HUB.Cor_Options,
+      Text = TabName,
+      Font = Configs_HUB.Text_Font,
+      TextColor3 = Configs_HUB.Cor_DarkText,
+      TextSize = 14
+    })Corner(TabBtn)Stroke(TabBtn)
+
+    local TabPage = Create("ScrollingFrame", ContainerHold, {
+      Size = UDim2.new(1, 0, 1, 0),
+      BackgroundTransparency = 1,
+      Visible = false,
+      ScrollBarThickness = 2,
+      CanvasSize = UDim2.new(0, 0, 0, 0),
+      AutomaticCanvasSize = "Y"
+    })Create("UIListLayout", TabPage, {Padding = UDim.new(0, 5)})
+
+    TabBtn.MouseButton1Click:Connect(function()
+      for _, v in pairs(ContainerHold:GetChildren()) do v.Visible = false end
+      TabPage.Visible = true
+    end)
+    
+    -- Mặc định hiện tab đầu tiên
+    if #ScrollTab:GetChildren() == 2 then -- 2 vì có UIListLayout
+        TabPage.Visible = true
+    end
+
+    return TabPage
+  end
+end
+
+-- TEST THỬ (Xóa phần này khi dán vào script của bạn)
+MakeWindow({
+  Hub = {Title = "GOLD HUB", Animation = "Welcome!"},
+  Key = {KeySystem = false}
+})
+
+MakeNotifi({
+  Title = "Success",
+  Text = "Menu loaded with Transparent Gold style!",
+  Time = 5
+})
